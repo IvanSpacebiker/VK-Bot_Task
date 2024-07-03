@@ -22,7 +22,7 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("org.projectlombok:lombok:1.18.28")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
-	runtimeOnly("org.postgresql:postgresql")
+	testImplementation("junit:junit:4.13.2")
 }
 
 tasks.withType<Test> {

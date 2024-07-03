@@ -17,7 +17,7 @@ import java.util.Objects;
 @Service
 @RequiredArgsConstructor
 public class MessageSenderServiceImpl implements MessageSenderService<MessagesSendDto> {
-    private static final int TEXT_MAX_LENGTH = 4096;
+    private static final int TEXT_MAX_LENGTH = 1000;
     private final RestTemplate restTemplate;
     private final VkUriCreator vkUriCreator;
 
@@ -29,12 +29,20 @@ public class MessageSenderServiceImpl implements MessageSenderService<MessagesSe
 
     private List<MessagesSendDto> parseIfRequired(MessagesSendDto dto) {
         String originalMessage = dto.getMessage();
-        int capacity = originalMessage.length() / TEXT_MAX_LENGTH + 1;
-        ArrayList<MessagesSendDto> result = new ArrayList<>(capacity);
-        for (int i = 0; i < capacity; i++) {
-            int beginIndex = i * TEXT_MAX_LENGTH;
-            int endIndex = Math.min((i + 1) * TEXT_MAX_LENGTH, originalMessage.length());
-            result.add(copyWithNewMessage(dto, originalMessage.substring(beginIndex, endIndex)));
+        List<MessagesSendDto> result = new ArrayList<>();
+        int start = 0;
+        while (start < originalMessage.length()) {
+            int end = Math.min(start + TEXT_MAX_LENGTH, originalMessage.length());
+
+            if (end < originalMessage.length() && originalMessage.charAt(end) != ' ') {
+                int lastSpace = originalMessage.lastIndexOf(' ', end);
+                if (lastSpace > start) {
+                    end = lastSpace;
+                }
+            }
+
+            result.add(copyWithNewMessage(dto, originalMessage.substring(start, end).trim()));
+            start = end + 1;
         }
         return result;
     }
